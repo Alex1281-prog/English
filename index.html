@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Личный кабинет ученика</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0f172a;
+      --bg-soft: #111827;
+      --bg-card: #020617;
+      --accent: #38bdf8;
+      --accent-soft: #0f172a;
+      --text: #e5e7eb;
+      --text-muted: #9ca3af;
+      --border: #1f2937;
+      --danger: #f97373;
+      --success: #4ade80;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at top, #1d2538 0, #020617 50%, #000 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      padding: 16px;
+    }
+
+    .app {
+      max-width: 1100px;
+      width: 100%;
+      background: linear-gradient(135deg, rgba(148, 163, 184, 0.12), rgba(15, 23, 42, 0.9));
+      border-radius: 24px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      box-shadow: 0 32px 120px rgba(15, 23, 42, 0.9);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      backdrop-filter: blur(18px);
+    }
+
+    header {
+      padding: 20px 24px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), transparent 55%);
+    }
+
+    .avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 0%, #38bdf8, #0f172a);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 22px;
+      color: white;
+      box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.8), 0 12px 30px rgba(56, 189, 248, 0.5);
+    }
+
+    .header-main {
+      flex: 1;
+    }
+
+    .student-name {
+      font-size: 20px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .student-tag {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      color: var(--text-muted);
+    }
+
+    .student-meta {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(51, 65, 85, 0.9);
+      font-size: 11px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 10px rgba(74, 222, 128, 0.7);
+    }
+
+    .header-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: flex-end;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      background: rgba(15, 23, 42, 0.95);
+      color: var(--text);
+      padding: 7px 12px;
+      font-size: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+
+    .btn span.icon {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .btn-accent {
+      background: radial-gradient(circle at top left, #38bdf8, #0f172a);
+      border-color: rgba(56, 189, 248, 0.9);
+      color: white;
+      box-shadow: 0 10px 30px rgba(56, 189, 248, 0.5);
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 25px rgba(15, 23, 42, 0.8);
+      border-color: rgba(148, 163, 184, 1);
+    }
+
+    .btn-accent:hover {
+      box-shadow: 0 14px 35px rgba(56, 189, 248, 0.7);
+    }
+
+    /* Layout */
+    .content {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 18px;
+      padding: 16px 18px 18px;
+    }
+
+    @media (max-width: 900px) {
+      .content {
+        grid-template-columns: 1fr;
+      }
+      .header-actions {
+        display: none;
+      }
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 8px;
+      }
+      .app {
+        border-radius: 18px;
+      }
+      header {
+        padding: 16px 16px 10px;
+      }
+      .content {
+        padding: 12px;
+      }
+    }
+
+    .card {
+      background: radial-gradient(circle at top, var(--bg-soft), var(--bg-card));
+      border-radius: 18px;
+      border: 1px solid rgba(30, 64, 175, 0.7);
+      padding: 12px 13px;
+      box-shadow: 0 20px 60px rgba(15, 23, 42, 0.8);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.16), transparent 60%);
+      opacity: 0.8;
+    }
+
+    .card-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 8px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-title-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      border: 1px solid rgba(56, 189, 248, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      background: rgba(15, 23, 42, 0.9);
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.7);
+    }
+
+    .card-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .pill {
+      font-size: 11px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(75, 85, 99, 0.9);
+      color: var(--text-muted);
+    }
+
+    /* Цели */
+    .goals-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .goal {
+      padding: 8px 9px;
+      border-radius: 12px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.99));
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+      gap: 8px;
+      align-items: center;
+    }
+
+    @media (max-width: 700px) {
+      .goal {
+        grid-template-columns: 1fr;
+        align-items: flex-start;
+      }
+    }
+
+    .goal-main {
+      font-size: 13px;
+    }
+
+    .goal-main-title {
+      font-weight: 500;
+      margin-bottom: 3px;
+    }
+
+    .goal-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .goal-progress-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 1);
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #22c55e, #38bdf8, #a855f7);
+      width: 0;
+      transition: width 0.5s ease;
+    }
+
+    /* Расписание */
+    .schedule-table {
+      width: 100%;
+      border-spacing: 0;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    .schedule-table th,
+    .schedule-table td {
+      padding: 6px 6px;
+      text-align: left;
+      border-bottom: 1px solid rgba(31, 41, 55, 0.9);
+    }
+
+    .schedule-table th {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+    }
+
+    .schedule-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .status-pill {
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border: 1px solid rgba(75, 85, 99, 0.9);
+    }
+
+    .status-upcoming {
+      border-color: rgba(56, 189, 248, 0.9);
+      color: #bae6fd;
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .status-done {
+      border-color: rgba(34, 197, 94, 0.9);
+      color: #bbf7d0;
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .status-cancelled {
+      border-color: rgba(248, 113, 113, 0.9);
+      color: #fecaca;
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .chip {
+      font-size: 11px;
+      padding: 3px 6px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(51, 65, 85, 0.9);
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* План занятий */
+    .topics-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 4px;
+      max-height: 230px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .topic {
+      padding: 7px 8px;
+      border-radius: 12px;
+      border: 1px solid rgba(51, 65, 85, 0.9);
+      background: rgba(15, 23, 42, 0.96);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .topic-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      font-size: 12px;
+    }
+
+    .topic-title {
+      font-weight: 500;
+    }
+
+    .topic-status {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(75, 85, 99, 0.9);
+      color: var(--text-muted);
+    }
+
+    .topic-status-done {
+      border-color: rgba(34, 197, 94, 0.9);
+      color: #bbf7d0;
+    }
+
+    .topic-status-inprogress {
+      border-color: rgba(56, 189, 248, 0.9);
+      color: #bae6fd;
+    }
+
+    .topic-status-next {
+      border-color: rgba(129, 140, 248, 0.9);
+      color: #c7d2fe;
+    }
+
+    .topic-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .topic-meta strong {
+      color: #e5e7eb;
+      font-weight: 500;
+    }
+
+    /* Правая колонка */
+    .column-right {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* Следующий урок */
+    .next-lesson {
+      padding: 10px 10px 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(56, 189, 248, 0.9);
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.95), rgba(8, 47, 73, 0.7));
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 8px;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    @media (max-width: 700px) {
+      .next-lesson {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .next-lesson::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background: radial-gradient(circle at 10% 0, rgba(56, 189, 248, 0.35), transparent 60%);
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .next-lesson-main {
+      position: relative;
+      z-index: 1;
+    }
+
+    .next-lesson-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: #bae6fd;
+      margin-bottom: 4px;
+    }
+
+    .next-lesson-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .next-lesson-text {
+      font-size: 12px;
+      color: #e5e7eb;
+    }
+
+    .next-lesson-meta {
+      font-size: 11px;
+      color: #e5e7eb;
+      margin-top: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .next-lesson-meta .chip {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .next-lesson-side {
+      position: relative;
+      z-index: 1;
+      font-size: 12px;
+      color: #e5e7eb;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+
+    .time-badge {
+      padding: 6px 8px;
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.9);
+      font-size: 11px;
+      text-align: right;
+      min-width: 110px;
+    }
+
+    .time-badge span {
+      display: block;
+    }
+
+    .micro-tag {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #bae6fd;
+      opacity: 0.9;
+    }
+
+    /* Прогресс */
+    .progress-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .progress-item {
+      padding: 7px 8px;
+      border-radius: 12px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      background: rgba(15, 23, 42, 0.98);
+      font-size: 11px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .progress-item-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .progress-item-name {
+      font-weight: 500;
+      font-size: 11px;
+    }
+
+    .progress-item-score {
+      font-size: 11px;
+      color: #bae6fd;
+    }
+
+    .progress-item-bar {
+      width: 100%;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 1);
+      overflow: hidden;
+      border: 1px solid rgba(31, 41, 55, 0.9);
+    }
+
+    .progress-item-bar-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #22c55e, #38bdf8, #a855f7);
+      width: 0;
+      transition: width 0.5s ease;
+    }
+
+    .progress-note {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    /* Мини-заметки */
+    .notes {
+      padding: 8px 9px;
+      border-radius: 14px;
+      border: 1px dashed rgba(75, 85, 99, 0.9);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .notes-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+    }
+
+    .notes ul {
+      margin: 4px 0 0;
+      padding-left: 18px;
+    }
+
+    .notes li {
+      margin-bottom: 2px;
+    }
+
+    footer {
+      padding: 9px 14px 12px;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    footer a {
+      color: #7dd3fc;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="avatar" id="avatarInitials">AA</div>
+      <div class="header-main">
+        <div class="student-name">
+          <span id="studentName">Имя ученика</span>
+          <span class="student-tag">Личный кабинет</span>
+        </div>
+        <div class="student-meta">
+          <span class="badge">
+            <span class="badge-dot"></span>
+            Уровень: <span id="studentLevel">A2</span>
+          </span>
+          <span class="badge">Фокус: <span id="studentFocus">разговор + грамматика</span></span>
+          <span class="badge">Формат: <span id="studentFormat">онлайн, 2 раза в неделю</span></span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-accent" onclick="alert('Подумайте, что задать до урока: тема, вопросы, ситуации ✨');">
+          <span class="icon">💬</span> Идея для разговора
+        </button>
+        <button class="btn" onclick="toggleLanguageTip()">
+          <span class="icon">🌱</span> Советы по развитию
+        </button>
+      </div>
+    </header>
+
+    <div class="content">
+      <!-- Левая колонка -->
+      <div class="column-left">
+        <!-- Цели -->
+        <section class="card">
+          <div class="card-inner">
+            <div class="card-header">
+              <div>
+                <div class="card-title">
+                  <div class="card-title-icon">🎯</div>
+                  Цели обучения
+                </div>
+                <div class="card-subtitle">К чему мы идём</div>
+              </div>
+              <div class="pill">Обновите вместе раз в месяц</div>
+            </div>
+
+            <div class="goals-list" id="goalsList">
+              <!-- сюда JS вставит цели -->
+            </div>
+          </div>
+        </section>
+
+        <!-- Расписание -->
+        <section class="card" style="margin-top: 12px;">
+          <div class="card-inner">
+            <div class="card-header">
+              <div>
+                <div class="card-title">
+                  <div class="card-title-icon">📅</div>
+                  Ближайшие занятия
+                </div>
+                <div class="card-subtitle">Расписание</div>
+              </div>
+              <div class="pill">Согласуйте время заранее</div>
+            </div>
+
+            <table class="schedule-table" id="scheduleTable">
+              <thead>
+                <tr>
+                  <th>Дата</th>
+                  <th>Время</th>
+                  <th>Тема</th>
+                  <th>Статус</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- JS добавит строки -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- Правая колонка -->
+      <div class="column-right">
+        <!-- Следующий урок -->
+        <section class="next-lesson" id="nextLessonBlock">
+          <div class="next-lesson-main">
+            <div class="next-lesson-label">Следующее занятие</div>
+            <div class="next-lesson-title" id="nextLessonTitle">
+              Family + глагол to be
+            </div>
+            <div class="next-lesson-text" id="nextLessonDescription">
+              Научимся рассказывать о своей семье, использовать I am / you are / he is и задавать простые вопросы.
+            </div>
+            <div class="next-lesson-meta">
+              <div class="chip">
+                🎯 Цель: уверенный рассказ о семье
+              </div>
+              <div class="chip">
+                🧩 Тип: лексика + грамматика
+              </div>
+            </div>
+          </div>
+          <div class="next-lesson-side">
+            <div class="time-badge">
+              <span class="micro-tag">Дата и время</span>
+              <span id="nextLessonDate">15.12.2025, 18:00–18:45</span>
+            </div>
+            <div class="time-badge" style="margin-top: 4px;">
+              <span class="micro-tag">Подготовка</span>
+              <span id="nextLessonPrep">повторить слова по теме "Family"</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Прогресс -->
+        <section class="card">
+          <div class="card-inner">
+            <div class="card-header">
+              <div>
+                <div class="card-title">
+                  <div class="card-title-icon">📈</div>
+                  Прогресс ученика
+                </div>
+                <div class="card-subtitle">Оценка по направлениям</div>
+              </div>
+            </div>
+
+            <div class="progress-grid" id="progressGrid">
+              <!-- JS добавит карточки прогресса -->
+            </div>
+
+            <div class="progress-note" id="progressNote">
+              Сильная сторона — понимание речи и произношение. Стоит поработать над уверенным говорением и временами.
+            </div>
+          </div>
+        </section>
+
+        <!-- План занятий / темы -->
+        <section class="card">
+          <div class="card-inner">
+            <div class="card-header">
+              <div>
+                <div class="card-title">
+                  <div class="card-title-icon">📚</div>
+                  План тем
+                </div>
+                <div class="card-subtitle">Что уже прошли и что дальше</div>
+              </div>
+            </div>
+
+            <div class="topics-list" id="topicsList">
+              <!-- JS вставит темы -->
+            </div>
+          </div>
+        </section>
+
+        <!-- Мини-заметки -->
+        <section class="notes" style="margin-top: 4px;">
+          <div class="notes-title">Рекомендации между занятиями</div>
+          <ul id="notesList">
+            <li>Слушать короткие диалоги A2 (подкасты, YouTube с субтитрами).</li>
+            <li>Повторять слова через Quizlet или Wordwall 10–15 минут в день.</li>
+            <li>Пытаться хотя бы раз в день сказать 2–3 фразы о своём дне на английском.</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+
+    <footer>
+      <span>Личный кабинет для ученика. Обновляйте данные после каждого урока.</span>
+      <span>Учитель: <strong id="teacherName">Ваше имя</strong></span>
+    </footer>
+  </div>
+
+  <script>
+    // --- НАСТРОЙКИ ЛИЧНОГО КАБИНЕТА ---
+    // Здесь меняешь данные под конкретного ученика
+
+    const student = {
+      name: "Аня Андреева",
+      level: "A2",
+      focus: "разговор + базовая грамматика",
+      format: "онлайн, 2 раза в неделю",
+      teacher: "Екатерина",
+    };
+
+    const goals = [
+      {
+        title: "Уверенно говорить на простые темы (семья, день, хобби)",
+        deadline: "до 01.06.2026",
+        importance: "для свободного общения в поездках и с друзьями",
+        progress: 60,
+      },
+      {
+        title: "Освоить времена Present Simple и Past Simple",
+        deadline: "до 01.05.2026",
+        importance: "чтобы не теряться при рассказе о себе и прошлом",
+        progress: 35,
+      },
+    ];
+
+    const schedule = [
+      {
+        date: "15.12.2025",
+        time: "18:00–18:45",
+        topic: "Family + to be",
+        status: "done",
+      },
+      {
+        date: "18.12.2025",
+        time: "18:00–18:45",
+        topic: "There is / There are + Комната",
+        status: "upcoming",
+      },
+      {
+        date: "22.12.2025",
+        time: "18:00–18:45",
+        topic: "Daily routine + Present Simple",
+        status: "upcoming",
+      },
+    ];
+
+    // Следующий урок
+    const nextLesson = {
+      title: "There is / There are + описание комнаты",
+      description:
+        "Научимся описывать комнату, использовать конструкцию There is / There are и базовый словарь по теме 'дом'.",
+      dateText: "18.12.2025, 18:00–18:45",
+      prep: 'подготовить 1–2 фото комнаты, повторить лексику "furniture"',
+    };
+
+    const progress = [
+      { name: "Говорение", score: 7, max: 10 },
+      { name: "Понимание речи", score: 8, max: 10 },
+      { name: "Грамматика", score: 6, max: 10 },
+      { name: "Словарный запас", score: 7, max: 10 },
+    ];
+
+    const topics = [
+      {
+        title: "Приветствия, алфавит, представление",
+        type: "лексика + говорение",
+        status: "done",
+        when: "пройдено",
+      },
+      {
+        title: "Семья (Family) + to be",
+        type: "лексика + грамматика",
+        status: "done",
+        when: "пройдено",
+      },
+      {
+        title: "Комната, дом + There is / There are",
+        type: "лексика + грамматика",
+        status: "inprogress",
+        when: "на следующих уроках",
+      },
+      {
+        title: "Распорядок дня + Present Simple",
+        type: "грамматика + говорение",
+        status: "next",
+        when: "запланировано",
+      },
+    ];
+
+    // --- ЛОГИКА ОТОБРАЖЕНИЯ ---
+
+    function initStudent() {
+      document.getElementById("studentName").textContent = student.name;
+      document.getElementById("studentLevel").textContent = student.level;
+      document.getElementById("studentFocus").textContent = student.focus;
+      document.getElementById("studentFormat").textContent = student.format;
+      document.getElementById("teacherName").textContent = student.teacher;
+
+      const initials = student.name
+        .split(" ")
+        .filter(Boolean)
+        .map((w) => w[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase();
+      document.getElementById("avatarInitials").textContent = initials;
+    }
+
+    function renderGoals() {
+      const container = document.getElementById("goalsList");
+      container.innerHTML = "";
+      goals.forEach((goal) => {
+        const el = document.createElement("div");
+        el.className = "goal";
+        el.innerHTML = `
+          <div class="goal-main">
+            <div class="goal-main-title">${goal.title}</div>
+            <div class="goal-meta">
+              <span>Срок: ${goal.deadline}</span>
+              <span>Почему важно: ${goal.importance}</span>
+            </div>
+          </div>
+          <div class="goal-progress-wrap">
+            <span>Прогресс: ${goal.progress}%</span>
+            <div class="progress-bar">
+              <div class="progress-bar-fill" style="width: ${goal.progress}%;"></div>
+            </div>
+          </div>
+        `;
+        container.appendChild(el);
+      });
+    }
+
+    function renderSchedule() {
+      const tbody = document.querySelector("#scheduleTable tbody");
+      tbody.innerHTML = "";
+      schedule.forEach((lesson) => {
+        const tr = document.createElement("tr");
+        const statusClass =
+          lesson.status === "done"
+            ? "status-done"
+            : lesson.status === "cancelled"
+            ? "status-cancelled"
+            : "status-upcoming";
+        const statusText =
+          lesson.status === "done"
+            ? "прошло"
+            : lesson.status === "cancelled"
+            ? "отменено"
+            : "запланировано";
+
+        tr.innerHTML = `
+          <td>${lesson.date}</td>
+          <td>${lesson.time}</td>
+          <td>${lesson.topic}</td>
+          <td><span class="status-pill ${statusClass}">${statusText}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderNextLesson() {
+      document.getElementById("nextLessonTitle").textContent = nextLesson.title;
+      document.getElementById("nextLessonDescription").textContent = nextLesson.description;
+      document.getElementById("nextLessonDate").textContent = nextLesson.dateText;
+      document.getElementById("nextLessonPrep").textContent = nextLesson.prep;
+    }
+
+    function renderProgress() {
+      const grid = document.getElementById("progressGrid");
+      grid.innerHTML = "";
+      progress.forEach((item) => {
+        const percent = Math.round((item.score / item.max) * 100);
+        const el = document.createElement("div");
+        el.className = "progress-item";
+        el.innerHTML = `
+          <div class="progress-item-label">
+            <span class="progress-item-name">${item.name}</span>
+            <span class="progress-item-score">${item.score} / ${item.max}</span>
+          </div>
+          <div class="progress-item-bar">
+            <div class="progress-item-bar-fill" style="width: ${percent}%;"></div>
+          </div>
+        `;
+        grid.appendChild(el);
+      });
+    }
+
+    function renderTopics() {
+      const list = document.getElementById("topicsList");
+      list.innerHTML = "";
+      topics.forEach((topic) => {
+        const statusClass =
+          topic.status === "done"
+            ? "topic-status-done"
+            : topic.status === "inprogress"
+            ? "topic-status-inprogress"
+            : "topic-status-next";
+
+        const statusText =
+          topic.status === "done"
+            ? "пройдено"
+            : topic.status === "inprogress"
+            ? "в работе"
+            : "скоро";
+
+        const el = document.createElement("div");
+        el.className = "topic";
+        el.innerHTML = `
+          <div class="topic-header">
+            <div class="topic-title">${topic.title}</div>
+            <div class="topic-status ${statusClass}">${statusText}</div>
+          </div>
+          <div class="topic-meta">
+            <span><strong>Тип:</strong> ${topic.type}</span>
+            <span><strong>Статус:</strong> ${topic.when}</span>
+          </div>
+        `;
+        list.appendChild(el);
+      });
+    }
+
+    function toggleLanguageTip() {
+      alert(
+        "Мини-идея: в конце каждого дня пусть ученик говорит 3 предложения:\n" +
+          "1) что он сегодня делал\n2) что понравилось\n3) что планирует завтра — всё на английском.\nЭто можно записывать голосом и переслушивать перед уроком."
+      );
+    }
+
+    // Инициализация
+    initStudent();
+    renderGoals();
+    renderSchedule();
+    renderNextLesson();
+    renderProgress();
+    renderTopics();
+  </script>
+</body>
+</html>
