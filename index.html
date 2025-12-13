@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Кабинеты учеников</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     :root {
       --bg: #f5f5f7;
@@ -26,90 +26,53 @@
     }
 
     .page {
-      max-width: 960px;
+      max-width: 720px;
       margin: 0 auto;
       padding: 24px 16px 40px;
     }
 
-    header {
-      margin-bottom: 18px;
-    }
-
-    .title {
+    h1 {
       font-size: 24px;
-      font-weight: 600;
       margin-bottom: 4px;
     }
 
-    .subtitle {
+    p {
       font-size: 14px;
       color: var(--text-muted);
-    }
-
-    .students-grid {
-      margin-top: 20px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 14px;
+      margin-top: 0;
+      margin-bottom: 18px;
     }
 
     .card {
       background: var(--bg-card);
       border-radius: var(--radius);
       border: 1px solid var(--border);
-      padding: 14px 14px 16px;
+      padding: 14px 16px 16px;
       box-shadow: var(--shadow);
+      margin-bottom: 10px;
       display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .card-header {
-      display: flex;
+      justify-content: space-between;
       align-items: center;
       gap: 10px;
     }
 
-    .avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: #dde3f0;
+    .info {
       display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 600;
-      color: #374151;
-      font-size: 16px;
+      flex-direction: column;
+      gap: 4px;
     }
 
-    .card-name {
+    .name {
       font-size: 16px;
       font-weight: 500;
     }
 
-    .card-meta {
+    .meta {
       font-size: 12px;
       color: var(--text-muted);
     }
 
-    .chip-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      font-size: 11px;
-    }
-
-    .chip {
-      padding: 3px 8px;
-      border-radius: 999px;
-      background: #f3f4f6;
-      color: #4b5563;
-    }
-
     .btn {
-      margin-top: 8px;
-      align-self: flex-start;
       border-radius: 999px;
       border: 1px solid var(--accent);
       background: var(--accent);
@@ -118,9 +81,7 @@
       padding: 6px 12px;
       cursor: pointer;
       text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
+      white-space: nowrap;
       transition: 0.15s ease;
     }
 
@@ -129,104 +90,42 @@
       transform: translateY(-1px);
     }
 
-    .btn span.icon {
-      font-size: 14px;
-    }
-
     footer {
       margin-top: 20px;
       font-size: 11px;
       color: var(--text-muted);
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-    }
-
-    @media (max-width: 600px) {
-      footer { flex-direction: column; }
     }
   </style>
 </head>
 <body>
   <div class="page">
-    <header>
-      <div class="title">Кабинеты учеников</div>
-      <div class="subtitle">
-        Выберите ученика, чтобы открыть его личный кабинет с расписанием, целями и материалами.
-      </div>
-    </header>
+    <h1>Кабинеты учеников</h1>
+    <p>Нажмите на кнопку, чтобы открыть личный кабинет ученика.</p>
 
-    <section class="students-grid" id="studentsGrid">
-      <!-- карточки учеников рендерятся JS -->
-    </section>
+    <!-- Кабинет из папки Evg/index1.html -->
+    <div class="card">
+      <div class="info">
+        <div class="name">Евгений</div>
+        <div class="meta">Уровень: A2 · разговор + грамматика</div>
+      </div>
+      <a class="btn" href="Evg/index1.html">Открыть кабинет</a>
+    </div>
+
+    <!-- Кабинет из папки Step/index2.html -->
+    <div class="card">
+      <div class="info">
+        <div class="name">Степан</div>
+        <div class="meta">Уровень: B1 · подготовка к экзамену</div>
+      </div>
+      <a class="btn" href="Step/index2.html">Открыть кабинет</a>
+    </div>
 
     <footer>
-      <span>Главная страница кабинетов.</span>
-      <span>Учитель: <span id="teacherName">Ваше имя</span></span>
+      Учитель: <strong>твое имя</strong>.
     </footer>
   </div>
-
-  <script>
-    // Имя учителя на главной
-    const teacherName = "Екатерина";
-    document.getElementById("teacherName").textContent = teacherName;
-
-    // СПИСОК УЧЕНИКОВ
-    // ВАЖНО: path указывает именно на файл в папке:
-    // Evg/index1.html и Step/index2.html
-    const students = [
-      {
-        name: "Евгений",             // как хочешь отображать на карточке
-        level: "A2",
-        focus: "разговор + грамматика",
-        path: "Evg/index1.html",     // ПАПКА Evg + ФАЙЛ index1.html
-        note: "Работаем над базовой разговорной речью.",
-      },
-      {
-        name: "Степан",
-        level: "B1",
-        focus: "подготовка к экзамену",
-        path: "Step/index2.html",    // ПАПКА Step + ФАЙЛ index2.html
-        note: "Готовимся к экзамену по говорению и письму.",
-      },
-    ];
-
-    const grid = document.getElementById("studentsGrid");
-
-    students.forEach((s) => {
-      const card = document.createElement("article");
-      card.className = "card";
-
-      const initials = s.name
-        .split(" ")
-        .filter(Boolean)
-        .map((w) => w[0])
-        .join("")
-        .slice(0, 2)
-        .toUpperCase();
-
-      card.innerHTML = `
-        <div class="card-header">
-          <div class="avatar">${initials}</div>
-          <div>
-            <div class="card-name">${s.name}</div>
-            <div class="card-meta">${s.note || ""}</div>
-          </div>
-        </div>
-        <div class="chip-row">
-          <span class="chip">Уровень: ${s.level}</span>
-          <span class="chip">${s.focus}</span>
-        </div>
-        <a class="btn" href="${s.path}">
-          <span class="icon">↗</span>
-          Открыть кабинет
-        </a>
-      `;
-
-      grid.appendChild(card);
-    });
-  </script>
 </body>
 </html>
+
 
 
