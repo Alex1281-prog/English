@@ -152,7 +152,7 @@
     <header>
       <div class="title">Кабинеты учеников</div>
       <div class="subtitle">
-        Выберите свой личный кабинет.
+        Выберите ученика, чтобы открыть его личный кабинет с расписанием, целями и материалами.
       </div>
     </header>
 
@@ -167,31 +167,29 @@
   </div>
 
   <script>
-    // --- НАСТРОЙКИ ---
-
+    // Имя учителя на главной
     const teacherName = "Екатерина";
+    document.getElementById("teacherName").textContent = teacherName;
 
-    // Список учеников: добавляй/удаляй здесь
+    // СПИСОК УЧЕНИКОВ
+    // ВАЖНО: path указывает именно на файл в папке:
+    // Evg/index1.html и Step/index2.html
     const students = [
       {
-        name: "Аня Андреева",
+        name: "Евгений",             // как хочешь отображать на карточке
         level: "A2",
-        focus: "разговор + базовая грамматика",
-        path: "anya/",        // папка с кабинетом
-        note: "Готовится уверенно говорить о семье, дне, хобби.",
+        focus: "разговор + грамматика",
+        path: "Evg/index1.html",     // ПАПКА Evg + ФАЙЛ index1.html
+        note: "Работаем над базовой разговорной речью.",
       },
       {
-        name: "Иван Петров",
+        name: "Степан",
         level: "B1",
         focus: "подготовка к экзамену",
-        path: "ivan/",
-        note: "Работаем над письмом и говорением для экзамена.",
+        path: "Step/index2.html",    // ПАПКА Step + ФАЙЛ index2.html
+        note: "Готовимся к экзамену по говорению и письму.",
       },
     ];
-
-    // --- РЕНДЕР ---
-
-    document.getElementById("teacherName").textContent = teacherName;
 
     const grid = document.getElementById("studentsGrid");
 
@@ -230,4 +228,5 @@
   </script>
 </body>
 </html>
+
 
