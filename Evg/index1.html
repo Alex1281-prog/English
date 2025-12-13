@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Кабинет ученика</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #f5f5f7;
+      --bg-card: #ffffff;
+      --border: #e0e0e6;
+      --text: #222222;
+      --text-muted: #777777;
+      --accent: #3b82f6;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+      --radius: 14px;
+      --danger: #ef4444;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .page {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .student-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #dde3f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .student-main {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .student-name {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .student-meta {
+      font-size: 13px;
+      color: var(--text-muted);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .meta-pill {
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #eceff4;
+    }
+
+    .header-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      font-size: 13px;
+      padding: 6px 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text);
+      box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+      transition: 0.15s ease;
+    }
+
+    .btn span.icon {
+      font-size: 14px;
+    }
+
+    .btn-primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .btn-danger {
+      border-color: var(--danger);
+      color: var(--danger);
+      background: #fff;
+    }
+
+    .btn:hover {
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+      transform: translateY(-1px);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 2fr 1.35fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 800px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .header-actions {
+        width: 100%;
+        justify-content: flex-start;
+      }
+    }
+
+    .card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 14px 16px 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .card-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .tag-soft {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #eff4ff;
+      color: #4b6fbf;
+    }
+
+    /* Цели */
+    .goals-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .goal-item {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid #e5e7eb;
+      background: #fafbff;
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+      gap: 8px;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    @media (max-width: 600px) {
+      .goal-item {
+        grid-template-columns: 1fr;
+        align-items: flex-start;
+      }
+    }
+
+    .goal-title {
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .goal-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .goal-progress-text {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      text-align: right;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #3b82f6, #22c55e);
+      width: 0;
+      transition: width 0.4s ease;
+    }
+
+    /* Расписание */
+    table {
+      width: 100%;
+      border-spacing: 0;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th, td {
+      padding: 6px 4px;
+      text-align: left;
+      border-bottom: 1px solid #edf0f3;
+    }
+
+    th {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .status-pill {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid #d1d5db;
+      background: #f9fafb;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .status-done {
+      border-color: #22c55e;
+      color: #15803d;
+      background: #ecfdf3;
+    }
+
+    .status-upcoming {
+      border-color: #3b82f6;
+      color: #1d4ed8;
+      background: #eff6ff;
+    }
+
+    .status-cancelled {
+      border-color: #ef4444;
+      color: #b91c1c;
+      background: #fef2f2;
+    }
+
+    .empty-text {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Следующий урок */
+    .next-lesson-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .next-lesson-text {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .next-lesson-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 12px;
+    }
+
+    .pill {
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #f3f4f6;
+      color: #4b5563;
+    }
+
+    /* Прогресс */
+    .progress-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    @media (max-width: 600px) {
+      .progress-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .progress-item {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      font-size: 12px;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .progress-name {
+      font-weight: 500;
+    }
+
+    /* Материалы */
+    .materials-list {
+      list-style: none;
+      padding-left: 0;
+      margin: 4px 0 0;
+      font-size: 13px;
+    }
+
+    .materials-list li {
+      margin-bottom: 4px;
+    }
+
+    .materials-list a {
+      color: #2563eb;
+      text-decoration: none;
+    }
+
+    .materials-list a:hover {
+      text-decoration: underline;
+    }
+
+    /* Админ-панель */
+    .admin-panel {
+      margin-top: 20px;
+      padding: 14px 16px 16px;
+      border-radius: var(--radius);
+      border: 1px dashed var(--border);
+      background: #f9fafb;
+      font-size: 13px;
+      display: none;
+    }
+
+    .admin-panel.visible {
+      display: block;
+    }
+
+    .admin-group {
+      margin-bottom: 12px;
+    }
+
+    .admin-group-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .admin-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    label {
+      font-size: 12px;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 6px 8px;
+      font-size: 13px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      background: #ffffff;
+      font-family: inherit;
+    }
+
+    textarea {
+      min-height: 60px;
+      resize: vertical;
+    }
+
+    .admin-half {
+      flex: 1 1 180px;
+      min-width: 0;
+    }
+
+    .admin-hint {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .materials-admin-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      margin-bottom: 6px;
+    }
+
+    .materials-admin-row .admin-half {
+      flex: 1 1 220px;
+    }
+
+    .material-admin-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      padding: 4px 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .material-admin-item:last-child {
+      border-bottom: none;
+    }
+
+    .btn-small {
+      font-size: 11px;
+      padding: 3px 8px;
+    }
+
+    footer {
+      margin-top: 16px;
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    @media (max-width: 600px) {
+      footer { flex-direction: column; }
+    }
+
+    /* Модальное окно логина */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.35);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+    }
+
+    .modal-backdrop.visible {
+      display: flex;
+    }
+
+    .modal {
+      background: #ffffff;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25);
+      max-width: 320px;
+      width: 100%;
+      padding: 16px 18px 16px;
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .modal-text {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .modal-row {
+      margin-bottom: 8px;
+    }
+
+    .modal-error {
+      font-size: 12px;
+      color: var(--danger);
+      margin-bottom: 6px;
+      display: none;
+    }
+
+    .back-link {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="student-info">
+        <div class="avatar" id="avatarInitials">AA</div>
+        <div class="student-main">
+          <div class="student-name" id="studentName">Имя ученика</div>
+          <div class="student-meta">
+            <span class="meta-pill">Уровень: <span id="studentLevel">A2</span></span>
+            <span class="meta-pill" id="studentFocus">разговор + грамматика</span>
+            <span class="meta-pill" id="studentFormat">онлайн, 2 раза в неделю</span>
+          </div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <a href="../" class="btn" type="button">
+          ⬅ На главную
+        </a>
+        <button class="btn" id="hintBtn" type="button">
+          <span class="icon">💡</span> Идея для практики
+        </button>
+        <button class="btn btn-primary" id="toggleAdminBtn" type="button">
+          <span class="icon">🔐</span> Админ-панель
+        </button>
+        <button class="btn btn-danger" id="logoutBtn" type="button" style="display:none;">
+          Выйти
+        </button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section>
+        <!-- Цели -->
+        <section class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Цели обучения</div>
+              <div class="card-subtitle">Кратко, над чем работаем</div>
+            </div>
+            <span class="tag-soft">Обновляйте раз в месяц</span>
+          </div>
+          <div class="goals-list" id="goalsList"></div>
+        </section>
+
+        <!-- Расписание -->
+        <section class="card" style="margin-top: 12px;">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Ближайшие занятия</div>
+              <div class="card-subtitle">Расписание</div>
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Дата</th>
+                <th>Время</th>
+                <th>Тема</th>
+                <th>Статус</th>
+              </tr>
+            </thead>
+            <tbody id="scheduleBody"></tbody>
+          </table>
+        </section>
+      </section>
+
+      <section>
+        <!-- Следующий урок -->
+        <section class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Следующее занятие</div>
+              <div class="card-subtitle">Краткий план</div>
+            </div>
+          </div>
+          <div class="next-lesson-title" id="nextLessonTitle"></div>
+          <div class="next-lesson-text" id="nextLessonDescription"></div>
+          <div class="next-lesson-meta">
+            <span class="pill" id="nextLessonDate"></span>
+            <span class="pill" id="nextLessonPrep"></span>
+          </div>
+        </section>
+
+        <!-- Прогресс -->
+        <section class="card" style="margin-top: 12px;">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Прогресс</div>
+              <div class="card-subtitle">По основным направлениям</div>
+            </div>
+          </div>
+          <div class="progress-grid" id="progressGrid"></div>
+        </section>
+
+        <!-- Материалы -->
+        <section class="card" style="margin-top: 12px;">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Материалы и файлы</div>
+              <div class="card-subtitle">Ссылки на PDF, аудио, упражнения</div>
+            </div>
+          </div>
+          <ul class="materials-list" id="materialsList"></ul>
+          <div class="empty-text" id="materialsEmptyText" style="display:none;">
+            Пока нет добавленных материалов.
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <!-- Админ-панель -->
+    <section class="admin-panel" id="adminPanel">
+      <div class="admin-group">
+        <div class="admin-group-title">Общая информация</div>
+        <div class="admin-row">
+          <div class="admin-half">
+            <label for="adminStudentName">Имя ученика</label>
+            <input type="text" id="adminStudentName" />
+          </div>
+          <div class="admin-half">
+            <label for="adminLevel">Уровень (A1–C1)</label>
+            <input type="text" id="adminLevel" />
+          </div>
+        </div>
+        <div class="admin-row">
+          <div class="admin-half">
+            <label for="adminFocus">Фокус (разговор, грамматика...)</label>
+            <input type="text" id="adminFocus" />
+          </div>
+          <div class="admin-half">
+            <label for="adminFormat">Формат (онлайн, раз в неделю и т.п.)</label>
+            <input type="text" id="adminFormat" />
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-group">
+        <div class="admin-group-title">Цели (до 3 штук)</div>
+        <div class="admin-row">
+          <div class="admin-half">
+            <label for="goal1Title">Цель 1 — формулировка</label>
+            <input type="text" id="goal1Title" />
+          </div>
+          <div class="admin-half">
+            <label for="goal1Deadline">Срок (например: до 01.06.2026)</label>
+            <input type="text" id="goal1Deadline" />
+          </div>
+        </div>
+        <div class="admin-row">
+          <div class="admin-half">
+            <label for="goal1Progress">Прогресс, %</label>
+            <input type="text" id="goal1Progress" />
+          </div>
+        </div>
+
+        <div class="admin-row">
+          <div class="admin-half">
+            <label for="goal2Title">Цель 2</label>
+            <input type="text" id="goal2Title" />
+          </div>
+          <div class="admin-half">
+            <label for="goal2Deadline">Срок</label>
+            <input type="text" id="goal2Deadline" />
+          </div>
+        </div>
+        <div class="admin-row">
+          <div class="admin-half">
+            <label for="goal2Progress">Прогресс, %</label>
+            <input type="text" id="goal2Progress" />
+          </div>
+        </div>
+
+        <div class="admin-row">
+          <div class="admin-half">
+            <label for="goal3Title">Цель 3</label>
+            <input type="text" id="goal3Title" />
+          </div>
+          <div class="admin-half">
+            <label for="goal3Deadline">Срок</label>
+            <input type="text" id="goal3Deadline" />
+          </div>
+        </div>
+        <div class="admin-row">
+          <div class="admin-half">
+            <label for="goal3Progress">Прогресс, %</label>
+            <input type="text" id="goal3Progress" />
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-group">
+        <div class="admin-group-title">Следующее занятие</div>
+        <div class="admin-row">
+          <div class="admin-half">
+            <label for="adminNextTitle">Тема</label>
+            <input type="text" id="adminNextTitle" />
+          </div>
+          <div class="admin-half">
+            <label for="adminNextDate">Дата и время (текстом)</label>
+            <input type="text" id="adminNextDate" />
+          </div>
+        </div>
+        <div class="admin-row">
+          <div class="admin-half">
+            <label for="adminNextDescription">Краткое описание</label>
+            <textarea id="adminNextDescription"></textarea>
+          </div>
+          <div class="admin-half">
+            <label for="adminNextPrep">Что подготовить</label>
+            <textarea id="adminNextPrep"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-group">
+        <div class="admin-group-title">Расписание (строки)</div>
+        <label for="adminSchedule">
+          Каждая строка: <br /> <code>дата | время | тема | статус</code> (статус: <code>done</code>, <code>upcoming</code>, <code>cancelled</code>)
+        </label>
+        <textarea id="adminSchedule"></textarea>
+        <div class="admin-hint">
+          Пример:<br />
+          <code>15.12.2025 | 18:00–18:45 | Family + to be | done</code><br />
+          <code>18.12.2025 | 18:00–18:45 | There is / There are | upcoming</code>
+        </div>
+      </div>
+
+      <div class="admin-group">
+        <div class="admin-group-title">Материалы (файлы как ссылки)</div>
+        <div class="admin-hint">
+          Добавляй сюда ссылки на PDF, презентации, аудиофайлы, Google Drive и т.п.
+        </div>
+        <div class="materials-admin-row">
+          <div class="admin-half">
+            <label for="adminMaterialTitle">Название</label>
+            <input type="text" id="adminMaterialTitle" placeholder="Например: Рабочий лист 'Family'" />
+          </div>
+          <div class="admin-half">
+            <label for="adminMaterialUrl">Ссылка (URL)</label>
+            <input type="text" id="adminMaterialUrl" placeholder="https://..." />
+          </div>
+        </div>
+        <button class="btn btn-small" type="button" id="addMaterialBtn">Добавить материал</button>
+        <div class="admin-hint" style="margin-top: 6px;">
+          Уже добавленные:
+        </div>
+        <div id="materialsAdminList"></div>
+      </div>
+
+      <button class="btn btn-primary" type="button" id="saveAdminBtn">
+        💾 Сохранить изменения
+      </button>
+      <span class="admin-hint">Данные сохраняются в этом браузере (localStorage).</span>
+    </section>
+
+    <footer>
+      <span>Личный кабинет ученика. Обновляйте после уроков.</span>
+      <span>Учитель: <span id="teacherName">Ваше имя</span></span>
+    </footer>
+  </div>
+
+  <!-- Модальное окно логина -->
+  <div class="modal-backdrop" id="loginModalBackdrop">
+    <div class="modal">
+      <div class="modal-title">Вход в админ-панель</div>
+      <div class="modal-text">
+        Введите логин и пароль учителя, чтобы редактировать кабинет.
+      </div>
+      <div class="modal-error" id="loginError">Неверный логин или пароль.</div>
+      <div class="modal-row">
+        <label for="adminLogin">Логин</label>
+        <input type="text" id="adminLogin" />
+      </div>
+      <div class="modal-row">
+        <label for="adminPassword">Пароль</label>
+        <input type="password" id="adminPassword" />
+      </div>
+      <div style="display:flex; gap:8px; margin-top:10px; justify-content:flex-end;">
+        <button class="btn btn-small" type="button" id="loginCancelBtn">Отмена</button>
+        <button class="btn btn-small btn-primary" type="button" id="loginSubmitBtn">Войти</button>
+      </div>
+      <div class="admin-hint" style="margin-top:6px;">
+        Подсказка: поменяй логин и пароль прямо в коде (константы ADMIN_USER и ADMIN_PASS).
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==== НАСТРОЙКИ АВТОРИЗАЦИИ ====
+    // !!! ЭТО НЕ НАСТОЯЩАЯ ЗАЩИТА, пароли видны в коде. Для школы ок.
+
+    const ADMIN_USER = "teacher";      // поменяй логин
+    const ADMIN_PASS = "english123";   // и пароль
+
+    const AUTH_KEY = "studentDashboard_isAdmin_v1";
+
+    let isAdmin = false;
+
+    function loadAuthState() {
+      try {
+        const v = sessionStorage.getItem(AUTH_KEY);
+        isAdmin = v === "1";
+      } catch(e) {
+        isAdmin = false;
+      }
+      updateAdminButtons();
+    }
+
+    function saveAuthState() {
+      try {
+        sessionStorage.setItem(AUTH_KEY, isAdmin ? "1" : "0");
+      } catch(e) {}
+      updateAdminButtons();
+    }
+
+    function updateAdminButtons() {
+      const logoutBtn = document.getElementById("logoutBtn");
+      const toggleAdminBtn = document.getElementById("toggleAdminBtn");
+      const adminPanel = document.getElementById("adminPanel");
+      if (isAdmin) {
+        logoutBtn.style.display = "inline-flex";
+        toggleAdminBtn.textContent = "Админ-панель";
+      } else {
+        logoutBtn.style.display = "none";
+        adminPanel.classList.remove("visible");
+        toggleAdminBtn.textContent = "Админ-панель";
+      }
+    }
+
+    function openLoginModal() {
+      document.getElementById("loginModalBackdrop").classList.add("visible");
+      document.getElementById("loginError").style.display = "none";
+      document.getElementById("adminLogin").value = "";
+      document.getElementById("adminPassword").value = "";
+      document.getElementById("adminLogin").focus();
+    }
+
+    function closeLoginModal() {
+      document.getElementById("loginModalBackdrop").classList.remove("visible");
+    }
+
+    function handleLoginSubmit() {
+      const login = document.getElementById("adminLogin").value.trim();
+      const pass = document.getElementById("adminPassword").value;
+      if (login === ADMIN_USER && pass === ADMIN_PASS) {
+        isAdmin = true;
+        saveAuthState();
+        closeLoginModal();
+        document.getElementById("adminPanel").classList.add("visible");
+        renderAdminForm();
+      } else {
+        const err = document.getElementById("loginError");
+        err.style.display = "block";
+      }
+    }
+
+    // ==== ДАННЫЕ ПО УМОЛЧАНИЮ ====
+
+    const defaultData = {
+      student: {
+        name: "Аня Андреева",
+        level: "A2",
+        focus: "разговор + базовая грамматика",
+        format: "онлайн, 2 раза в неделю",
+        teacher: "Екатерина",
+      },
+      goals: [
+        {
+          title: "Уверенно говорить на простые темы (семья, день, хобби)",
+          deadline: "до 01.06.2026",
+          progress: 60,
+        },
+        {
+          title: "Освоить времена Present Simple и Past Simple",
+          deadline: "до 01.05.2026",
+          progress: 35,
+        },
+      ],
+      nextLesson: {
+        title: "There is / There are + описание комнаты",
+        description: "Научимся описывать комнату и использовать конструкцию There is / There are.",
+        dateText: "18.12.2025, 18:00–18:45",
+        prep: 'подготовить 1–2 фото комнаты, повторить лексику "furniture"',
+      },
+      schedule: [
+        { date: "15.12.2025", time: "18:00–18:45", topic: "Family + to be", status: "done" },
+        { date: "18.12.2025", time: "18:00–18:45", topic: "There is / There are", status: "upcoming" },
+        { date: "22.12.2025", time: "18:00–18:45", topic: "Daily routine + Present Simple", status: "upcoming" },
+      ],
+      progress: [
+        { name: "Говорение", score: 7, max: 10 },
+        { name: "Понимание речи", score: 8, max: 10 },
+        { name: "Грамматика", score: 6, max: 10 },
+        { name: "Словарный запас", score: 7, max: 10 },
+      ],
+      materials: [
+        {
+          title: "Рабочий лист: Family",
+          url: "https://example.com/family.pdf",
+        },
+      ],
+    };
+
+    const STORAGE_KEY = "studentDashboardData_v1_anya";
+
+    function loadData() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return structuredClone(defaultData);
+        const parsed = JSON.parse(raw);
+        return { ...structuredClone(defaultData), ...parsed };
+      } catch (e) {
+        console.warn("Ошибка чтения данных, используем стандартные", e);
+        return structuredClone(defaultData);
+      }
+    }
+
+    function saveData(data) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    let data = loadData();
+
+    // ==== РЕНДЕР ====
+
+    function renderStudent() {
+      const { name, level, focus, format, teacher } = data.student;
+      document.getElementById("studentName").textContent = name;
+      document.getElementById("studentLevel").textContent = level;
+      document.getElementById("studentFocus").textContent = focus;
+      document.getElementById("studentFormat").textContent = format;
+      document.getElementById("teacherName").textContent = teacher;
+
+      const initials = name
+        .split(" ")
+        .filter(Boolean)
+        .map((w) => w[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase();
+      document.getElementById("avatarInitials").textContent = initials || "??";
+    }
+
+    function renderGoals() {
+      const list = document.getElementById("goalsList");
+      list.innerHTML = "";
+      if (!data.goals || data.goals.length === 0) {
+        const p = document.createElement("div");
+        p.className = "empty-text";
+        p.textContent = "Цели пока не заданы.";
+        list.appendChild(p);
+        return;
+      }
+      data.goals.forEach((g) => {
+        const item = document.createElement("div");
+        item.className = "goal-item";
+        const progress = Math.max(0, Math.min(100, Number(g.progress) || 0));
+        item.innerHTML = `
+          <div>
+            <div class="goal-title">${g.title || ""}</div>
+            <div class="goal-meta">${g.deadline || ""}</div>
+          </div>
+          <div>
+            <div class="goal-progress-text">Прогресс: ${progress}%</div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: ${progress}%;"></div>
+            </div>
+          </div>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    function renderSchedule() {
+      const tbody = document.getElementById("scheduleBody");
+      tbody.innerHTML = "";
+      if (!data.schedule || data.schedule.length === 0) {
+        const tr = document.createElement("tr");
+        const td = document.createElement("td");
+        td.colSpan = 4;
+        td.className = "empty-text";
+        td.textContent = "Пока нет запланированных занятий.";
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+        return;
+      }
+      data.schedule.forEach((lesson) => {
+        const tr = document.createElement("tr");
+        const statusClass =
+          lesson.status === "done"
+            ? "status-done"
+            : lesson.status === "cancelled"
+            ? "status-cancelled"
+            : "status-upcoming";
+        const statusText =
+          lesson.status === "done"
+            ? "прошло"
+            : lesson.status === "cancelled"
+            ? "отменено"
+            : "запланировано";
+
+        tr.innerHTML = `
+          <td>${lesson.date || ""}</td>
+          <td>${lesson.time || ""}</td>
+          <td>${lesson.topic || ""}</td>
+          <td><span class="status-pill ${statusClass}">${statusText}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderNextLesson() {
+      const nl = data.nextLesson;
+      if (!nl) return;
+      document.getElementById("nextLessonTitle").textContent = nl.title || "";
+      document.getElementById("nextLessonDescription").textContent = nl.description || "";
+      document.getElementById("nextLessonDate").textContent = nl.dateText || "";
+      document.getElementById("nextLessonPrep").textContent = nl.prep || "";
+    }
+
+    function renderProgress() {
+      const grid = document.getElementById("progressGrid");
+      grid.innerHTML = "";
+      if (!data.progress || data.progress.length === 0) {
+        const p = document.createElement("div");
+        p.className = "empty-text";
+        p.textContent = "Оценка прогресса пока не заполнена.";
+        grid.appendChild(p);
+        return;
+      }
+      data.progress.forEach((pItem) => {
+        const percent = Math.round(((Number(pItem.score) || 0) / (Number(pItem.max) || 10)) * 100);
+        const div = document.createElement("div");
+        div.className = "progress-item";
+        div.innerHTML = `
+          <div class="progress-label">
+            <span class="progress-name">${pItem.name}</span>
+            <span>${pItem.score} / ${pItem.max}</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: ${Math.max(0, Math.min(100, percent))}%;"></div>
+          </div>
+        `;
+        grid.appendChild(div);
+      });
+    }
+
+    function renderMaterials() {
+      const list = document.getElementById("materialsList");
+      const empty = document.getElementById("materialsEmptyText");
+      list.innerHTML = "";
+      if (!data.materials || data.materials.length === 0) {
+        empty.style.display = "block";
+        return;
+      }
+      empty.style.display = "none";
+      data.materials.forEach((m) => {
+        const li = document.createElement("li");
+        const a = document.createElement("a");
+        a.href = m.url;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        a.textContent = m.title || m.url;
+        li.appendChild(a);
+        list.appendChild(li);
+      });
+    }
+
+    function renderMaterialsAdmin() {
+      const container = document.getElementById("materialsAdminList");
+      container.innerHTML = "";
+      if (!data.materials || data.materials.length === 0) {
+        const p = document.createElement("div");
+        p.className = "admin-hint";
+        p.textContent = "Пока нет добавленных материалов.";
+        container.appendChild(p);
+        return;
+      }
+      data.materials.forEach((m, index) => {
+        const row = document.createElement("div");
+        row.className = "material-admin-item";
+        const title = document.createElement("span");
+        title.textContent = m.title || m.url;
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "btn btn-small";
+        btn.textContent = "Удалить";
+        btn.addEventListener("click", () => {
+          data.materials.splice(index, 1);
+          saveData(data);
+          renderMaterials();
+          renderMaterialsAdmin();
+        });
+        row.appendChild(title);
+        row.appendChild(btn);
+        container.appendChild(row);
+      });
+    }
+
+    function renderAdminForm() {
+      const s = data.student;
+      document.getElementById("adminStudentName").value = s.name || "";
+      document.getElementById("adminLevel").value = s.level || "";
+      document.getElementById("adminFocus").value = s.focus || "";
+      document.getElementById("adminFormat").value = s.format || "";
+
+      const g = data.goals || [];
+      const g1 = g[0] || {};
+      const g2 = g[1] || {};
+      const g3 = g[2] || {};
+      document.getElementById("goal1Title").value = g1.title || "";
+      document.getElementById("goal1Deadline").value = g1.deadline || "";
+      document.getElementById("goal1Progress").value = g1.progress ?? "";
+      document.getElementById("goal2Title").value = g2.title || "";
+      document.getElementById("goal2Deadline").value = g2.deadline || "";
+      document.getElementById("goal2Progress").value = g2.progress ?? "";
+      document.getElementById("goal3Title").value = g3.title || "";
+      document.getElementById("goal3Deadline").value = g3.deadline || "";
+      document.getElementById("goal3Progress").value = g3.progress ?? "";
+
+      const nl = data.nextLesson || {};
+      document.getElementById("adminNextTitle").value = nl.title || "";
+      document.getElementById("adminNextDate").value = nl.dateText || "";
+      document.getElementById("adminNextDescription").value = nl.description || "";
+      document.getElementById("adminNextPrep").value = nl.prep || "";
+
+      const scheduleText = (data.schedule || [])
+        .map(
+          (l) =>
+            `${l.date || ""} | ${l.time || ""} | ${l.topic || ""} | ${l.status || "upcoming"}`
+        )
+        .join("\n");
+      document.getElementById("adminSchedule").value = scheduleText;
+
+      renderMaterialsAdmin();
+    }
+
+    function renderAll() {
+      renderStudent();
+      renderGoals();
+      renderSchedule();
+      renderNextLesson();
+      renderProgress();
+      renderMaterials();
+    }
+
+    // ==== АДМИН-ЛОГИКА ====
+
+    document.getElementById("toggleAdminBtn").addEventListener("click", () => {
+      if (!isAdmin) {
+        openLoginModal();
+        return;
+      }
+      const panel = document.getElementById("adminPanel");
+      const visible = panel.classList.toggle("visible");
+      if (visible) {
+        renderAdminForm();
+      }
+    });
+
+    document.getElementById("saveAdminBtn").addEventListener("click", () => {
+      if (!isAdmin) {
+        alert("Сначала войдите в админ-панель.");
+        return;
+      }
+
+      data.student.name = document.getElementById("adminStudentName").value.trim();
+      data.student.level = document.getElementById("adminLevel").value.trim();
+      data.student.focus = document.getElementById("adminFocus").value.trim();
+      data.student.format = document.getElementById("adminFormat").value.trim();
+
+      const goals = [];
+      function pushGoal(titleId, deadlineId, progressId) {
+        const title = document.getElementById(titleId).value.trim();
+        const deadline = document.getElementById(deadlineId).value.trim();
+        const progressStr = document.getElementById(progressId).value.trim();
+        if (!title && !deadline && !progressStr) return;
+        const progress = Number(progressStr) || 0;
+        goals.push({ title, deadline, progress });
+      }
+      pushGoal("goal1Title", "goal1Deadline", "goal1Progress");
+      pushGoal("goal2Title", "goal2Deadline", "goal2Progress");
+      pushGoal("goal3Title", "goal3Deadline", "goal3Progress");
+      data.goals = goals;
+
+      data.nextLesson = {
+        title: document.getElementById("adminNextTitle").value.trim(),
+        dateText: document.getElementById("adminNextDate").value.trim(),
+        description: document.getElementById("adminNextDescription").value.trim(),
+        prep: document.getElementById("adminNextPrep").value.trim(),
+      };
+
+      const text = document.getElementById("adminSchedule").value;
+      const schedule = [];
+      text
+        .split("\n")
+        .map((line) => line.trim())
+        .filter((line) => line)
+        .forEach((line) => {
+          const parts = line.split("|").map((p) => p.trim());
+          const [date, time, topic, statusRaw] = parts;
+          let status = (statusRaw || "upcoming").toLowerCase();
+          if (!["done", "upcoming", "cancelled"].includes(status)) status = "upcoming";
+          schedule.push({ date, time, topic, status });
+        });
+      data.schedule = schedule;
+
+      saveData(data);
+      renderAll();
+      alert("Изменения сохранены.");
+    });
+
+    document.getElementById("addMaterialBtn").addEventListener("click", () => {
+      if (!isAdmin) {
+        alert("Сначала войдите в админ-панель.");
+        return;
+      }
+      const title = document.getElementById("adminMaterialTitle").value.trim();
+      const url = document.getElementById("adminMaterialUrl").value.trim();
+      if (!title || !url) {
+        alert("Введите и название, и ссылку.");
+        return;
+      }
+      data.materials = data.materials || [];
+      data.materials.push({ title, url });
+      document.getElementById("adminMaterialTitle").value = "";
+      document.getElementById("adminMaterialUrl").value = "";
+      saveData(data);
+      renderMaterials();
+      renderMaterialsAdmin();
+    });
+
+    document.getElementById("hintBtn").addEventListener("click", () => {
+      alert(
+        "Идея для практики:\nКаждый день пусть ученик проговаривает 3 предложения:\n1) что он сегодня делал\n2) что понравилось\n3) что планирует завтра\n— всё на английском. Можно записывать голосом и присылать учителю."
+      );
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      isAdmin = false;
+      saveAuthState();
+      alert("Вы вышли из админ-панели.");
+    });
+
+    // логин-модал
+    document.getElementById("loginCancelBtn").addEventListener("click", closeLoginModal);
+    document.getElementById("loginSubmitBtn").addEventListener("click", handleLoginSubmit);
+
+    document.getElementById("adminPassword").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        handleLoginSubmit();
+      }
+    });
+
+    // ==== ЗАПУСК ====
+    loadAuthState();
+    renderAll();
+  </script>
+</body>
+</html>
+
