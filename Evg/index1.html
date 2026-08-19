@@ -184,6 +184,7 @@
 
     .quick-item {
       display: flex;
+      min-width: 0;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
@@ -195,6 +196,7 @@
 
     .quick-item-label {
       display: flex;
+      flex: 1 1 auto;
       align-items: center;
       gap: 10px;
       min-width: 0;
@@ -227,10 +229,12 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 220px;
+      max-width: 100%;
+      min-width: 0;
     }
 
     .quick-btn {
+      flex: 0 0 auto;
       flex-shrink: 0;
       padding: 6px 14px;
       font-size: 12.5px;
@@ -755,7 +759,7 @@
       </div>
 
       <button class="btn btn-primary" type="button" id="saveAdminBtn">💾 Сохранить изменения</button>
-      <span class="admin-hint">Данные сохраняются в этом браузере (localStorage).</span>
+      <span class="admin-hint">Данные сохраняются в Firebase Realtime Database.</span>
     </section>
 
     <footer>
@@ -768,15 +772,15 @@
   <div class="modal-backdrop" id="loginModalBackdrop">
     <div class="modal">
       <div class="modal-title">Вход в админ-панель</div>
-      <div class="modal-text">Введите логин и пароль учителя, чтобы редактировать кабинет.</div>
+      <div class="modal-text">Введите данные Firebase Authentication учителя, чтобы редактировать кабинет.</div>
       <div class="modal-error" id="loginError">Неверный логин или пароль.</div>
       <div class="modal-row">
-        <label for="adminLogin">Логин</label>
-        <input type="text" id="adminLogin" />
+        <label for="adminLogin">Email или логин</label>
+        <input type="text" id="adminLogin" placeholder="teacher" autocomplete="username" />
       </div>
       <div class="modal-row">
         <label for="adminPassword">Пароль</label>
-        <input type="password" id="adminPassword" />
+        <input type="password" id="adminPassword" autocomplete="current-password" />
       </div>
       <div style="display:flex; gap:8px; margin-top:10px; justify-content:flex-end;">
         <button class="btn btn-small" type="button" id="loginCancelBtn">Отмена</button>
@@ -788,23 +792,57 @@
     </div>
   </div>
 
-  <script>
-    // ==== НАСТРОЙКИ АВТОРИЗАЦИИ ====
-    const ADMIN_USER = "teacher";
-    const ADMIN_PASS = "englishT3RR3@6h";
-    const AUTH_KEY = "studentDashboard_isAdmin_v1";
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+    import {
+      getDatabase, ref as dbRef, set, onValue,
+    } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
+    import {
+      getStorage, ref, uploadBytes, getDownloadURL, deleteObject,
+    } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-storage.js";
+    import {
+      getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut,
+    } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+
+    // ==== FIREBASE ====
+    // Данные кабинета хранятся в Firebase Realtime Database,
+    // PDF-файлы — в Firebase Storage. Изменения синхронизируются между устройствами.
+    const firebaseConfig = {
+      apiKey: "AIzaSyDbb49WAxK3amlF760QfblM1dt0fbSx9lg",
+      authDomain: "english-c5f4b.firebaseapp.com",
+      projectId: "english-c5f4b",
+      databaseURL: "https://english-c5f4b-default-rtdb.firebaseio.com",
+      storageBucket: "english-c5f4b.firebasestorage.app",
+      messagingSenderId: "988828048482",
+      appId: "1:988828048482:web:035760c8ddfd700779c53b",
+      measurementId: "G-SJ3GKQSHQ1",
+    };
+    const firebaseApp = initializeApp(firebaseConfig);
+    const db = getDatabase(firebaseApp);
+    const storage = getStorage(firebaseApp);
+    const auth = getAuth(firebaseApp);
+    const dashboardRef = dbRef(db, "dashboards/darya");
+
+    // ==== FIREBASE AUTHENTICATION ====
+    // Создай в Firebase Authentication пользователя:
+    // teacher@english-c5f4b.firebaseapp.com
+    // с паролем: englishT3RR3@6h
+    // После этого Security Rules будут разрешать запись только этому аккаунту.
+    const ADMIN_EMAIL = "teacher@english-c5f4b.firebaseapp.com";
     let isAdmin = false;
 
-    function loadAuthState() {
-      try {
-        isAdmin = sessionStorage.getItem(AUTH_KEY) === "1";
-      } catch (e) { isAdmin = false; }
-      updateAdminButtons();
-    }
     function saveAuthState() {
-      try { sessionStorage.setItem(AUTH_KEY, isAdmin ? "1" : "0"); } catch (e) {}
       updateAdminButtons();
     }
+
+    onAuthStateChanged(auth, (user) => {
+      isAdmin = !!user && user.email === ADMIN_EMAIL;
+      updateAdminButtons();
+      if (isAdmin) {
+        const panel = document.getElementById("adminPanel");
+        if (panel && panel.classList.contains("visible")) renderAdminForm();
+      }
+    });
     function updateAdminButtons() {
       const logoutBtn = document.getElementById("logoutBtn");
       const toggleAdminBtn = document.getElementById("toggleAdminBtn");
@@ -829,78 +867,106 @@
     function closeLoginModal() {
       document.getElementById("loginModalBackdrop").classList.remove("visible");
     }
-    function handleLoginSubmit() {
+    async function handleLoginSubmit() {
       const login = document.getElementById("adminLogin").value.trim();
       const pass = document.getElementById("adminPassword").value;
-      if (login === ADMIN_USER && pass === ADMIN_PASS) {
+      const email = login === "teacher" ? ADMIN_EMAIL : login;
+      const errorEl = document.getElementById("loginError");
+      errorEl.style.display = "none";
+      try {
+        const credential = await signInWithEmailAndPassword(auth, email, pass);
+        if (credential.user.email !== ADMIN_EMAIL) {
+          await signOut(auth);
+          throw new Error("Этот аккаунт не является аккаунтом учителя.");
+        }
         isAdmin = true;
-        saveAuthState();
         closeLoginModal();
         document.getElementById("adminPanel").classList.add("visible");
         renderAdminForm();
-      } else {
-        document.getElementById("loginError").style.display = "block";
+      } catch (e) {
+        console.error(e);
+        errorEl.textContent = "Неверный логин или пароль.";
+        errorEl.style.display = "block";
       }
     }
 
-    // ==== ДАННЫЕ ПО УМОЛЧАНИЮ ====
+    // ==== ДАННЫЕ ПО УМОЛЧАНИЮ (используются, пока не загрузились данные из облака) ====
     const defaultData = {
       student: {
-        name: "Аня Андреева",
-        focus: "разговор + базовая грамматика",
-        format: "онлайн, 2 раза в неделю",
+        name: "Дарья",
+        focus: "ЕГЭ Английский",
+        format: "",
         teacher: "Александр",
       },
       links: {
-        connect: "",
-        materials: "",
+        connect: "https://telemost.yandex.ru/j/69289141915465",
+        materials: "https://docs.google.com/document/d/14ZBcdxkRZdoLzT1Q3jun0nL2aF3-LsTnDRxCQNVpnN4/edit?usp=sharing",
       },
-      goals: [
-        { title: "Уверенно говорить на простые темы (семья, день, хобби)", deadline: "до 01.06.2026", progress: 60 },
-        { title: "Освоить времена Present Simple и Past Simple", deadline: "до 01.05.2026", progress: 35 },
-      ],
+      goals: [],
       schedule: [
-        { date: "15.12.2025", time: "18:00–18:45", topic: "Family + to be", status: "done" },
-        { date: "18.12.2025", time: "18:00–18:45", topic: "There is / There are", status: "upcoming" },
-        { date: "22.12.2025", time: "18:00–18:45", topic: "Daily routine + Present Simple", status: "upcoming" },
+        { date: "19.08", time: "", topic: "", status: "upcoming" },
       ],
-      materials: [
-        { title: "Рабочий лист: Family", url: "https://example.com/family.pdf" },
-      ],
+      materials: [],
       files: [],
     };
 
-    const STORAGE_KEY = "studentDashboardData_v1_anya";
+    const STORAGE_KEY = "studentDashboardData_v1_darya";
 
-    // Простое глубокое копирование через JSON — работает в любом браузере,
-    // в отличие от structuredClone(), которого может не быть в некоторых окружениях.
+    // Простое глубокое копирование через JSON — работает в любом браузере.
     function deepClone(obj) {
       return JSON.parse(JSON.stringify(obj));
     }
 
-    function loadData() {
+    // Локальный кэш нужен для мгновенной отрисовки и как запасной вариант при отсутствии интернета.
+    function loadCachedData() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
         if (!raw) return deepClone(defaultData);
-        const parsed = JSON.parse(raw);
-        return { ...deepClone(defaultData), ...parsed };
+        return { ...deepClone(defaultData), ...JSON.parse(raw) };
       } catch (e) {
-        console.warn("Ошибка чтения данных, используем стандартные", e);
         return deepClone(defaultData);
       }
     }
+    function cacheDataLocally(d) {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); } catch (e) {}
+    }
 
-    function saveData(data) {
+    // Главная функция сохранения — пишет в Firebase Realtime Database.
+    async function saveToCloud() {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        await set(dashboardRef, data);
+        cacheDataLocally(data);
       } catch (e) {
+        console.error(e);
         alert(
-          "Не удалось сохранить данные в этом браузере — скорее всего, загруженные файлы занимают слишком много места. Попробуйте удалить старые файлы или загружать PDF меньшего размера."
+          "Не удалось сохранить изменения в облако. Проверьте интернет-соединение и настройки Firebase Realtime Database.\n" + e.message
         );
       }
     }
 
-    let data = loadData();
+    let data = loadCachedData();
+
+    // Подписка на изменения в реальном времени.
+    onValue(
+      dashboardRef,
+      (snapshot) => {
+        const value = snapshot.val();
+        if (value) {
+          data = { ...deepClone(defaultData), ...value };
+          cacheDataLocally(data);
+        } else {
+          set(dashboardRef, defaultData).catch((e) => console.error("Не удалось создать данные:", e));
+          data = deepClone(defaultData);
+        }
+        renderAll();
+        if (document.getElementById("adminPanel").classList.contains("visible")) {
+          renderAdminForm();
+        }
+      },
+      (error) => {
+        console.error("Ошибка синхронизации с Firebase Realtime Database:", error);
+      }
+    );
 
     // ==== РЕНДЕР ====
     function renderStudent() {
@@ -1030,7 +1096,7 @@
               <span class="file-name">${f.name}</span>
               <span class="file-size">${formatSize(f.size)}</span>
             </div>
-            <a class="file-download" href="${f.dataUrl}" download="${f.name}">Скачать</a>
+            <a class="file-download" href="${f.url}" download="${f.name}" target="_blank" rel="noopener noreferrer">Скачать</a>
           `;
           filesList.appendChild(row);
         });
@@ -1056,9 +1122,9 @@
         btn.type = "button";
         btn.className = "btn btn-small";
         btn.textContent = "Удалить";
-        btn.addEventListener("click", () => {
+        btn.addEventListener("click", async () => {
           data.materials.splice(index, 1);
-          saveData(data);
+          await saveToCloud();
           renderMaterials();
           renderMaterialsAdmin();
         });
@@ -1087,9 +1153,17 @@
         btn.type = "button";
         btn.className = "btn btn-small";
         btn.textContent = "Удалить";
-        btn.addEventListener("click", () => {
+        btn.addEventListener("click", async () => {
+          const removed = data.files[index];
+          try {
+            if (removed && removed.path) {
+              await deleteObject(ref(storage, removed.path));
+            }
+          } catch (e) {
+            console.warn("Не удалось удалить файл из хранилища (возможно, уже удалён):", e);
+          }
           data.files.splice(index, 1);
-          saveData(data);
+          await saveToCloud();
           renderMaterials();
           renderFilesAdmin();
         });
@@ -1130,10 +1204,10 @@
       renderMaterials();
     }
 
-    document.getElementById("saveStudentGoalBtn").addEventListener("click", () => {
+    document.getElementById("saveStudentGoalBtn").addEventListener("click", async () => {
       const title = document.getElementById("studentGoalInput").value.trim();
       data.goals = title ? [{ title }] : [];
-      saveData(data);
+      await saveToCloud();
       renderGoals();
       const saved = document.getElementById("studentGoalSaved");
       saved.style.display = "block";
@@ -1148,7 +1222,7 @@
       if (visible) renderAdminForm();
     });
 
-    document.getElementById("saveAdminBtn").addEventListener("click", () => {
+    document.getElementById("saveAdminBtn").addEventListener("click", async () => {
       if (!isAdmin) { alert("Сначала войдите в админ-панель."); return; }
 
       data.student.name = document.getElementById("adminStudentName").value.trim();
@@ -1174,12 +1248,12 @@
       });
       data.schedule = schedule;
 
-      saveData(data);
+      await saveToCloud();
       renderAll();
-      alert("Изменения сохранены.");
+      alert("Изменения сохранены и видны всем, кто откроет страницу.");
     });
 
-    document.getElementById("addMaterialBtn").addEventListener("click", () => {
+    document.getElementById("addMaterialBtn").addEventListener("click", async () => {
       if (!isAdmin) { alert("Сначала войдите в админ-панель."); return; }
       const title = document.getElementById("adminMaterialTitle").value.trim();
       const url = document.getElementById("adminMaterialUrl").value.trim();
@@ -1188,36 +1262,55 @@
       data.materials.push({ title, url });
       document.getElementById("adminMaterialTitle").value = "";
       document.getElementById("adminMaterialUrl").value = "";
-      saveData(data);
+      await saveToCloud();
       renderMaterials();
       renderMaterialsAdmin();
     });
 
-    document.getElementById("addFileBtn").addEventListener("click", () => {
+    document.getElementById("addFileBtn").addEventListener("click", async () => {
       if (!isAdmin) { alert("Сначала войдите в админ-панель."); return; }
       const input = document.getElementById("adminFileInput");
       const file = input.files && input.files[0];
       if (!file) { alert("Сначала выберите PDF-файл."); return; }
       if (file.type !== "application/pdf") { alert("Можно загружать только PDF-файлы."); return; }
-      if (file.size > 4 * 1024 * 1024) {
-        if (!confirm("Файл больше 4 МБ — сохранение может не сработать в этом браузере. Всё равно попробовать?")) return;
+      if (file.size > 15 * 1024 * 1024) {
+        if (!confirm("Файл больше 15 МБ — загрузка может занять время. Продолжить?")) return;
       }
-      const reader = new FileReader();
-      reader.onload = () => {
+      const btn = document.getElementById("addFileBtn");
+      const originalText = btn.textContent;
+      btn.textContent = "Загрузка...";
+      btn.disabled = true;
+      try {
+        const path = `dashboards/darya/files/${Date.now()}-${file.name}`;
+        const fileRef = ref(storage, path);
+        await uploadBytes(fileRef, file);
+        const url = await getDownloadURL(fileRef);
         data.files = data.files || [];
-        data.files.push({ name: file.name, size: file.size, dataUrl: reader.result });
+        data.files.push({ name: file.name, size: file.size, url, path });
         input.value = "";
-        saveData(data);
+        await saveToCloud();
         renderMaterials();
         renderFilesAdmin();
-      };
-      reader.onerror = () => alert("Не удалось прочитать файл.");
-      reader.readAsDataURL(file);
+      } catch (e) {
+        console.error(e);
+        alert(
+          "Не удалось загрузить файл. Проверьте интернет-соединение и включён ли Firebase Storage в консоли Firebase.\n" + e.message
+        );
+      } finally {
+        btn.textContent = originalText;
+        btn.disabled = false;
+      }
     });
 
-    document.getElementById("logoutBtn").addEventListener("click", () => {
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      try {
+        await signOut(auth);
+      } catch (e) {
+        console.error(e);
+      }
       isAdmin = false;
-      saveAuthState();
+      document.getElementById("adminPanel").classList.remove("visible");
+      updateAdminButtons();
       alert("Вы вышли из админ-панели.");
     });
 
@@ -1228,7 +1321,7 @@
     });
 
     // ==== ЗАПУСК ====
-    loadAuthState();
+    updateAdminButtons();
     renderAll();
   </script>
 </body>
