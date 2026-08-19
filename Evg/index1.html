@@ -599,16 +599,19 @@
 
     <main class="layout">
       <section>
-        <!-- Цели -->
+        <!-- Цель -->
         <section class="card">
           <div class="card-header">
             <div>
-              <div class="card-title">Цели обучения</div>
-              <div class="card-subtitle">Над чем работаем</div>
+              <div class="card-title">Моя цель</div>
+              <div class="card-subtitle">Что хочется получить от занятий</div>
             </div>
-            <span class="tag-soft">Обновляйте раз в месяц</span>
           </div>
-          <div class="goals-list" id="goalsList"></div>
+          <div class="student-goal-editor">
+            <textarea id="studentGoalInput" rows="3" placeholder="Например: Хочу уверенно говорить по-английски в путешествиях..."></textarea>
+            <button class="btn btn-primary btn-small" type="button" id="saveStudentGoalBtn">Сохранить цель</button>
+            <div class="admin-hint" id="studentGoalSaved" style="display:none; margin-top:6px;">Цель сохранена.</div>
+          </div>
         </section>
 
         <!-- Расписание -->
@@ -686,55 +689,11 @@
       </div>
 
       <div class="admin-group">
-        <div class="admin-group-title">Цели (до 3 штук)</div>
+        <div class="admin-group-title">Цель ученика</div>
         <div class="admin-row">
-          <div class="admin-half">
-            <label for="goal1Title">Цель 1 — формулировка</label>
-            <input type="text" id="goal1Title" />
-          </div>
-          <div class="admin-half">
-            <label for="goal1Deadline">Срок (например: до 01.06.2026)</label>
-            <input type="text" id="goal1Deadline" />
-          </div>
-        </div>
-        <div class="admin-row">
-          <div class="admin-half">
-            <label for="goal1Progress">Прогресс, %</label>
-            <input type="text" id="goal1Progress" />
-          </div>
-        </div>
-
-        <div class="admin-row">
-          <div class="admin-half">
-            <label for="goal2Title">Цель 2</label>
-            <input type="text" id="goal2Title" />
-          </div>
-          <div class="admin-half">
-            <label for="goal2Deadline">Срок</label>
-            <input type="text" id="goal2Deadline" />
-          </div>
-        </div>
-        <div class="admin-row">
-          <div class="admin-half">
-            <label for="goal2Progress">Прогресс, %</label>
-            <input type="text" id="goal2Progress" />
-          </div>
-        </div>
-
-        <div class="admin-row">
-          <div class="admin-half">
-            <label for="goal3Title">Цель 3</label>
-            <input type="text" id="goal3Title" />
-          </div>
-          <div class="admin-half">
-            <label for="goal3Deadline">Срок</label>
-            <input type="text" id="goal3Deadline" />
-          </div>
-        </div>
-        <div class="admin-row">
-          <div class="admin-half">
-            <label for="goal3Progress">Прогресс, %</label>
-            <input type="text" id="goal3Progress" />
+          <div style="flex:1;">
+            <label for="goal1Title">Цель</label>
+            <textarea id="goal1Title" rows="3" placeholder="Цель ученика"></textarea>
           </div>
         </div>
       </div>
@@ -881,10 +840,10 @@
     // ==== ДАННЫЕ ПО УМОЛЧАНИЮ ====
     const defaultData = {
       student: {
-        name: "Аня Андреева",
-        focus: "разговор + базовая грамматика",
+        name: "Дарья",
+        focus: "ЕГЭ Английсий",
         format: "онлайн, 2 раза в неделю",
-        teacher: "Екатерина",
+        teacher: "Александр",
       },
       links: {
         connect: "",
@@ -894,22 +853,10 @@
         { title: "Уверенно говорить на простые темы (семья, день, хобби)", deadline: "до 01.06.2026", progress: 60 },
         { title: "Освоить времена Present Simple и Past Simple", deadline: "до 01.05.2026", progress: 35 },
       ],
-      nextLesson: {
-        title: "There is / There are + описание комнаты",
-        description: "Научимся описывать комнату и использовать конструкцию There is / There are.",
-        dateText: "18.12.2025, 18:00–18:45",
-        prep: 'подготовить 1–2 фото комнаты, повторить лексику "furniture"',
-      },
       schedule: [
-        { date: "15.12.2025", time: "18:00–18:45", topic: "Family + to be", status: "done" },
-        { date: "18.12.2025", time: "18:00–18:45", topic: "There is / There are", status: "upcoming" },
-        { date: "22.12.2025", time: "18:00–18:45", topic: "Daily routine + Present Simple", status: "upcoming" },
-      ],
-      progress: [
-        { name: "Говорение", score: 7, max: 10 },
-        { name: "Понимание речи", score: 8, max: 10 },
-        { name: "Грамматика", score: 6, max: 10 },
-        { name: "Словарный запас", score: 7, max: 10 },
+        { date: "19.08.2026", time: "18:00–18:45", topic: "Family + to be", status: "done" },
+        { date: "18.12.2026", time: "18:00–18:45", topic: "There is / There are", status: "upcoming" },
+        { date: "22.12.2026", time: "18:00–18:45", topic: "Daily routine + Present Simple", status: "upcoming" },
       ],
       materials: [
         { title: "Рабочий лист: Family", url: "https://example.com/family.pdf" },
@@ -988,31 +935,8 @@
     }
 
     function renderGoals() {
-      const list = document.getElementById("goalsList");
-      list.innerHTML = "";
-      if (!data.goals || data.goals.length === 0) {
-        const p = document.createElement("div");
-        p.className = "empty-text";
-        p.textContent = "Цели пока не заданы.";
-        list.appendChild(p);
-        return;
-      }
-      data.goals.forEach((g) => {
-        const item = document.createElement("div");
-        item.className = "goal-item";
-        const progress = Math.max(0, Math.min(100, Number(g.progress) || 0));
-        item.innerHTML = `
-          <div>
-            <div class="goal-title">${g.title || ""}</div>
-            <div class="goal-meta">${g.deadline || ""}</div>
-          </div>
-          <div>
-            <div class="goal-progress-text">Прогресс: ${progress}%</div>
-            <div class="progress-bar"><div class="progress-fill" style="width: ${progress}%;"></div></div>
-          </div>
-        `;
-        list.appendChild(item);
-      });
+      const input = document.getElementById("studentGoalInput");
+      if (input) input.value = (data.goals && data.goals[0] && data.goals[0].title) || "";
     }
 
     function renderSchedule() {
@@ -1043,40 +967,6 @@
           <span class="status-pill ${statusClass}">${statusText}</span>
         `;
         container.appendChild(row);
-      });
-    }
-
-    function renderNextLesson() {
-      const nl = data.nextLesson;
-      if (!nl) return;
-      document.getElementById("nextLessonTitle").textContent = nl.title || "";
-      document.getElementById("nextLessonDescription").textContent = nl.description || "";
-      document.getElementById("nextLessonDate").textContent = nl.dateText || "";
-      document.getElementById("nextLessonPrep").textContent = nl.prep || "";
-    }
-
-    function renderProgress() {
-      const grid = document.getElementById("progressGrid");
-      grid.innerHTML = "";
-      if (!data.progress || data.progress.length === 0) {
-        const p = document.createElement("div");
-        p.className = "empty-text";
-        p.textContent = "Оценка прогресса пока не заполнена.";
-        grid.appendChild(p);
-        return;
-      }
-      data.progress.forEach((pItem) => {
-        const percent = Math.round(((Number(pItem.score) || 0) / (Number(pItem.max) || 10)) * 100);
-        const div = document.createElement("div");
-        div.className = "progress-item";
-        div.innerHTML = `
-          <div class="progress-label">
-            <span class="progress-name">${pItem.name}</span>
-            <span>${pItem.score} / ${pItem.max}</span>
-          </div>
-          <div class="progress-bar"><div class="progress-fill" style="width: ${Math.max(0, Math.min(100, percent))}%;"></div></div>
-        `;
-        grid.appendChild(div);
       });
     }
 
@@ -1208,22 +1098,7 @@
       document.getElementById("adminMaterialsLink").value = links.materials || "";
 
       const g = data.goals || [];
-      const g1 = g[0] || {}, g2 = g[1] || {}, g3 = g[2] || {};
-      document.getElementById("goal1Title").value = g1.title || "";
-      document.getElementById("goal1Deadline").value = g1.deadline || "";
-      document.getElementById("goal1Progress").value = g1.progress ?? "";
-      document.getElementById("goal2Title").value = g2.title || "";
-      document.getElementById("goal2Deadline").value = g2.deadline || "";
-      document.getElementById("goal2Progress").value = g2.progress ?? "";
-      document.getElementById("goal3Title").value = g3.title || "";
-      document.getElementById("goal3Deadline").value = g3.deadline || "";
-      document.getElementById("goal3Progress").value = g3.progress ?? "";
-
-      const nl = data.nextLesson || {};
-      document.getElementById("adminNextTitle").value = nl.title || "";
-      document.getElementById("adminNextDate").value = nl.dateText || "";
-      document.getElementById("adminNextDescription").value = nl.description || "";
-      document.getElementById("adminNextPrep").value = nl.prep || "";
+      document.getElementById("goal1Title").value = g[0]?.title || "";
 
       const scheduleText = (data.schedule || [])
         .map((l) => `${l.date || ""} | ${l.time || ""} | ${l.topic || ""} | ${l.status || "upcoming"}`)
@@ -1239,10 +1114,18 @@
       renderQuickLinks();
       renderGoals();
       renderSchedule();
-      renderNextLesson();
-      renderProgress();
       renderMaterials();
     }
+
+    document.getElementById("saveStudentGoalBtn").addEventListener("click", () => {
+      const title = document.getElementById("studentGoalInput").value.trim();
+      data.goals = title ? [{ title }] : [];
+      saveData(data);
+      renderGoals();
+      const saved = document.getElementById("studentGoalSaved");
+      saved.style.display = "block";
+      setTimeout(() => { saved.style.display = "none"; }, 1800);
+    });
 
     // ==== АДМИН-ЛОГИКА ====
     document.getElementById("toggleAdminBtn").addEventListener("click", () => {
@@ -1263,25 +1146,8 @@
       data.links.connect = document.getElementById("adminConnectLink").value.trim();
       data.links.materials = document.getElementById("adminMaterialsLink").value.trim();
 
-      const goals = [];
-      function pushGoal(titleId, deadlineId, progressId) {
-        const title = document.getElementById(titleId).value.trim();
-        const deadline = document.getElementById(deadlineId).value.trim();
-        const progressStr = document.getElementById(progressId).value.trim();
-        if (!title && !deadline && !progressStr) return;
-        goals.push({ title, deadline, progress: Number(progressStr) || 0 });
-      }
-      pushGoal("goal1Title", "goal1Deadline", "goal1Progress");
-      pushGoal("goal2Title", "goal2Deadline", "goal2Progress");
-      pushGoal("goal3Title", "goal3Deadline", "goal3Progress");
-      data.goals = goals;
-
-      data.nextLesson = {
-        title: document.getElementById("adminNextTitle").value.trim(),
-        dateText: document.getElementById("adminNextDate").value.trim(),
-        description: document.getElementById("adminNextDescription").value.trim(),
-        prep: document.getElementById("adminNextPrep").value.trim(),
-      };
+      const goalTitle = document.getElementById("goal1Title").value.trim();
+      data.goals = goalTitle ? [{ title: goalTitle }] : [];
 
       const text = document.getElementById("adminSchedule").value;
       const schedule = [];
