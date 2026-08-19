@@ -840,10 +840,10 @@
     // ==== ДАННЫЕ ПО УМОЛЧАНИЮ ====
     const defaultData = {
       student: {
-        name: "Дарья",
-        focus: "ЕГЭ Английсий",
+        name: "Аня Андреева",
+        focus: "разговор + базовая грамматика",
         format: "онлайн, 2 раза в неделю",
-        teacher: "Александр",
+        teacher: "Екатерина",
       },
       links: {
         connect: "",
@@ -854,9 +854,9 @@
         { title: "Освоить времена Present Simple и Past Simple", deadline: "до 01.05.2026", progress: 35 },
       ],
       schedule: [
-        { date: "19.08.2026", time: "18:00–18:45", topic: "Family + to be", status: "done" },
-        { date: "18.12.2026", time: "18:00–18:45", topic: "There is / There are", status: "upcoming" },
-        { date: "22.12.2026", time: "18:00–18:45", topic: "Daily routine + Present Simple", status: "upcoming" },
+        { date: "15.12.2025", time: "18:00–18:45", topic: "Family + to be", status: "done" },
+        { date: "18.12.2025", time: "18:00–18:45", topic: "There is / There are", status: "upcoming" },
+        { date: "22.12.2025", time: "18:00–18:45", topic: "Daily routine + Present Simple", status: "upcoming" },
       ],
       materials: [
         { title: "Рабочий лист: Family", url: "https://example.com/family.pdf" },
@@ -866,15 +866,21 @@
 
     const STORAGE_KEY = "studentDashboardData_v1_anya";
 
+    // Простое глубокое копирование через JSON — работает в любом браузере,
+    // в отличие от structuredClone(), которого может не быть в некоторых окружениях.
+    function deepClone(obj) {
+      return JSON.parse(JSON.stringify(obj));
+    }
+
     function loadData() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return structuredClone(defaultData);
+        if (!raw) return deepClone(defaultData);
         const parsed = JSON.parse(raw);
-        return { ...structuredClone(defaultData), ...parsed };
+        return { ...deepClone(defaultData), ...parsed };
       } catch (e) {
         console.warn("Ошибка чтения данных, используем стандартные", e);
-        return structuredClone(defaultData);
+        return deepClone(defaultData);
       }
     }
 
@@ -1219,3 +1225,4 @@
   </script>
 </body>
 </html>
+
